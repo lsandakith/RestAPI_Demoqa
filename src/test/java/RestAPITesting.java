@@ -9,22 +9,22 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import static io.restassured.RestAssured.given;
 
-
-public class RestAPITesting extends BaseTest{
+public class RestAPITesting {
 
     private String isbn=null;
+    public String ACTIVITY_END_POINT ="https://demoqa.com/BookStore/v1/Books";
 
     @Test(priority = 1,enabled = true)
     public void testActivityRetrieval() {
 
         RequestSpecification h = given();
-        Response res = h.get("https://demoqa.com/BookStore/v1/Books");
+        Response res = h.get(ACTIVITY_END_POINT);
         ResponseBody b = res.getBody();
         String responseBody = b.asString();
         JsonPath jsnPath = res.jsonPath();
 
         System.out.println(responseBody);
-        isbn = jsnPath.get("books.isbn[2]");
+        isbn = jsnPath.get("books.isbn[7]");
         System.out.println("ISBN: " + isbn);
 
 
@@ -38,19 +38,19 @@ public class RestAPITesting extends BaseTest{
         JSONArray array = new JSONArray();
         array.put(collectionOfIsbns);
         JSONObject  child = new JSONObject();
-        child.put("userId", "871380ef-9c7a-4442-8439-a7ed34ee381d");
+        child.put("userId", "cb211ff9-30ed-49d4-bfe8-01d5a49383cf");
         child.put("collectionOfIsbns",array);
 
         Response response =given()
           .auth()
           .preemptive()
-          .basic("ls", "123@bstBST")
+          .basic("apiTestUser", "123@bstBST")
           .header("Accept", ContentType.JSON.getAcceptHeader())
           .contentType(ContentType.JSON)
           .body(child.toString()).log().all()
-          .post("https://demoqa.com/BookStore/v1/Books")
+          .post(ACTIVITY_END_POINT)
           .then().extract().response();
-           System.out.println(response.getStatusCode());
+           System.out.println("Response code : "+response.getStatusCode());
            Assert.assertEquals(response.getStatusCode(),201,"ISBN already present in the User's Collection!");
 
            if(response.getStatusCode()==201)
